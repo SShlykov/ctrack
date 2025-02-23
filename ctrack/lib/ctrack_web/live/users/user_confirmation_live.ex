@@ -1,5 +1,5 @@
 defmodule CtrackWeb.UserConfirmationLive do
-  use CtrackWeb, :live_view
+  use CtrackWeb, :auth_view
 
   alias Ctrack.Accounts
 
@@ -16,8 +16,8 @@ defmodule CtrackWeb.UserConfirmationLive do
       </.simple_form>
 
       <p class="text-center mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
+        <.link href={~p"/auth/users/register"}>Register</.link>
+        | <.link href={~p"/auth/users/log_in"}>Log in</.link>
       </p>
     </div>
     """

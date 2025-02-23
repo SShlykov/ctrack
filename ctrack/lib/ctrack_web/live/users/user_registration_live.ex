@@ -1,5 +1,5 @@
 defmodule CtrackWeb.UserRegistrationLive do
-  use CtrackWeb, :live_view
+  use CtrackWeb, :auth_view
 
   alias Ctrack.Accounts
   alias Ctrack.Accounts.User
@@ -11,7 +11,7 @@ defmodule CtrackWeb.UserRegistrationLive do
         Register for an account
         <:subtitle>
           Already registered?
-          <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+          <.link navigate={~p"/auth/users/log_in"} class="font-semibold text-brand hover:underline">
             Log in
           </.link>
           to your account now.
@@ -24,14 +24,14 @@ defmodule CtrackWeb.UserRegistrationLive do
         phx-submit="save"
         phx-change="validate"
         phx-trigger-action={@trigger_submit}
-        action={~p"/users/log_in?_action=registered"}
+        action={~p"/auth/users/log_in?_action=registered"}
         method="post"
       >
         <.error :if={@check_errors}>
           Oops, something went wrong! Please check the errors below.
         </.error>
 
-        <.input field={@form[:email]} type="email" label="Email" required />
+        <.input field={@form[:email]} type="text" label="Username" required />
         <.input field={@form[:password]} type="password" label="Password" required />
 
         <:actions>
@@ -59,7 +59,7 @@ defmodule CtrackWeb.UserRegistrationLive do
         {:ok, _} =
           Accounts.deliver_user_confirmation_instructions(
             user,
-            &url(~p"/users/confirm/#{&1}")
+            &url(~p"/auth/users/confirm/#{&1}")
           )
 
         changeset = Accounts.change_user_registration(user)

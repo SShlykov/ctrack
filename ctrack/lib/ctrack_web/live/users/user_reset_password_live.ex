@@ -1,5 +1,5 @@
 defmodule CtrackWeb.UserResetPasswordLive do
-  use CtrackWeb, :live_view
+  use CtrackWeb, :auth_view
 
   alias Ctrack.Accounts
 
@@ -31,8 +31,8 @@ defmodule CtrackWeb.UserResetPasswordLive do
       </.simple_form>
 
       <p class="text-center text-sm mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
+        <.link href={~p"/auth/users/register"}>Register</.link>
+        | <.link href={~p"/auth/users/log_in"}>Log in</.link>
       </p>
     </div>
     """
@@ -61,7 +61,7 @@ defmodule CtrackWeb.UserResetPasswordLive do
         {:noreply,
          socket
          |> put_flash(:info, "Password reset successfully.")
-         |> redirect(to: ~p"/users/log_in")}
+         |> redirect(to: ~p"/auth/users/log_in")}
 
       {:error, changeset} ->
         {:noreply, assign_form(socket, Map.put(changeset, :action, :insert))}

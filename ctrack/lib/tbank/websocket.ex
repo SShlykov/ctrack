@@ -12,11 +12,7 @@ defmodule Tbank.Websocket do
 
     addr = "tinkoff.public.invest.api.contract.v1.MarketDataStreamService/MarketDataStream"
 
-    instruments = [
-      %{"figi" => "BBG001J4BCN4"},
-      %{"figi" => "BBG0013HG026"},
-      %{"figi" => "BBG004730RP0", "instrumentId" => "c7c26356-7352-4c37-8316-b1d93b18e16e"}
-    ]
+    instruments = Application.get_env(:ctrack, :instruments)
 
     {:ok, pid} =
       WebSockex.start_link("#{@tbank_ws_addr}/#{addr}", __MODULE__, options,
@@ -44,7 +40,18 @@ defmodule Tbank.Websocket do
         {:ok, state}
 
       msg ->
-        Logger.debug("Received message: #{inspect(msg)}")
+        Enum.each(
+          msg["subscribeCandlesResponse"]["candlesSubscriptions"],
+          fn %{"figi" => figi, "subscriptionStatus" => status} ->
+            Jason.encode!(%{
+              message: "Received message",
+              figi: figi,
+              subscriptionStatus: status
+            })
+            |> Logger.debug()
+          end
+        )
+
         {:ok, state}
     end
   end
@@ -63,7 +70,8 @@ defmodule Tbank.Websocket do
             instruments,
             fn instrument ->
               instrument
-              |> Map.put("interval", "SUBSCRIPTION_INTERVAL_ONE_MINUTE")
+              |> Map.drop([:name, :color])
+              |> Map.put(:interval, "SUBSCRIPTION_INTERVAL_ONE_MINUTE")
             end
           ),
         "waitingClose" => false
@@ -72,5 +80,16 @@ defmodule Tbank.Websocket do
   end
 
   defp handle_candle_data(candle, _) do
+    case Domain.Candle.from_raw(candle) do
+      {:ok, processed_candle} ->
+        Phoenix.PubSub.broadcast(
+          Ctrack.PubSub,
+          "candles:#{processed_candle.figi}",
+          {:candle_update, processed_candle}
+        )
+
+      {:error, reason} ->
+        Logger.error("Failed to process candle data: #{inspect(reason)}")
+    end
   end
 end

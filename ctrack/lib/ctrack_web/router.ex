@@ -1,7 +1,7 @@
 defmodule CtrackWeb.Router do
   use CtrackWeb, :router
 
-  import CtrackWeb.UserAuth
+  import CtrackWeb.Auth.UserAuth
 
   pipeline :browser do
     plug(:accepts, ["html"])
@@ -13,22 +13,7 @@ defmodule CtrackWeb.Router do
     plug(:fetch_current_user)
   end
 
-  pipeline :api do
-    plug(:accepts, ["json"])
-  end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", CtrackWeb do
-  #   pipe_through :api
-  # end
-
-  # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:ctrack, :dev_routes) do
-    # If you want to use the LiveDashboard in production, you should put
-    # it behind authentication and allow only admins to access it.
-    # If your application does not have an admins-only section yet,
-    # you can use Plug.BasicAuth to set up some basic authentication
-    # as long as you are also using SSL (which you should anyway).
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do
@@ -46,15 +31,17 @@ defmodule CtrackWeb.Router do
 
     live("/", PageLive)
 
-    live_session :redirect_if_user_is_authenticated,
-      on_mount: [{CtrackWeb.UserAuth, :redirect_if_user_is_authenticated}] do
-      live("/users/register", UserRegistrationLive, :new)
-      live("/users/log_in", UserLoginLive, :new)
-      live("/users/reset_password", UserForgotPasswordLive, :new)
-      live("/users/reset_password/:token", UserResetPasswordLive, :edit)
-    end
+    scope "/auth" do
+      live_session :redirect_if_user_is_authenticated,
+        on_mount: [{CtrackWeb.Auth.UserAuth, :redirect_if_user_is_authenticated}] do
+        live("/users/register", UserRegistrationLive, :new)
+        live("/users/log_in", UserLoginLive, :new)
+        live("/users/reset_password", UserForgotPasswordLive, :new)
+        live("/users/reset_password/:token", UserResetPasswordLive, :edit)
+      end
 
-    post("/users/log_in", UserSessionController, :create)
+      post("/users/log_in", UserSessionController, :create)
+    end
   end
 
   scope "/", CtrackWeb do
@@ -62,20 +49,22 @@ defmodule CtrackWeb.Router do
 
     live("/home", Home)
 
-    live_session :require_authenticated_user,
-      on_mount: [{CtrackWeb.UserAuth, :ensure_authenticated}] do
-      live("/users/settings", UserSettingsLive, :edit)
-      live("/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email)
+    scope "/auth" do
+      live_session :require_authenticated_user,
+        on_mount: [{CtrackWeb.Auth.UserAuth, :ensure_authenticated}] do
+        live("/users/settings", UserSettingsLive, :edit)
+        live("/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email)
+      end
     end
   end
 
-  scope "/", CtrackWeb do
+  scope "/auth", CtrackWeb do
     pipe_through([:browser])
 
     delete("/users/log_out", UserSessionController, :delete)
 
     live_session :current_user,
-      on_mount: [{CtrackWeb.UserAuth, :mount_current_user}] do
+      on_mount: [{CtrackWeb.Auth.UserAuth, :mount_current_user}] do
       live("/users/confirm/:token", UserConfirmationLive, :edit)
       live("/users/confirm", UserConfirmationInstructionsLive, :new)
     end

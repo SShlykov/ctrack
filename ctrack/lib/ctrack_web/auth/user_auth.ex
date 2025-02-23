@@ -1,4 +1,4 @@
-defmodule CtrackWeb.UserAuth do
+defmodule CtrackWeb.Auth.UserAuth do
   use CtrackWeb, :verified_routes
 
   import Plug.Conn
@@ -135,13 +135,13 @@ defmodule CtrackWeb.UserAuth do
       defmodule CtrackWeb.PageLive do
         use CtrackWeb, :live_view
 
-        on_mount {CtrackWeb.UserAuth, :mount_current_user}
+        on_mount {CtrackWeb.Auth.UserAuth, :mount_current_user}
         ...
       end
 
   Or use the `live_session` of your router to invoke the on_mount callback:
 
-      live_session :authenticated, on_mount: [{CtrackWeb.UserAuth, :ensure_authenticated}] do
+      live_session :authenticated, on_mount: [{CtrackWeb.Auth.UserAuth, :ensure_authenticated}] do
         live "/profile", ProfileLive, :index
       end
   """
@@ -158,7 +158,7 @@ defmodule CtrackWeb.UserAuth do
       socket =
         socket
         |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
-        |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")
+        |> Phoenix.LiveView.redirect(to: ~p"/auth/users/log_in")
 
       {:halt, socket}
     end
@@ -208,7 +208,7 @@ defmodule CtrackWeb.UserAuth do
       conn
       |> put_flash(:error, "You must log in to access this page.")
       |> maybe_store_return_to()
-      |> redirect(to: ~p"/users/log_in")
+      |> redirect(to: ~p"/auth/users/log_in")
       |> halt()
     end
   end

@@ -1,11 +1,11 @@
 defmodule CtrackWeb.UserConfirmationInstructionsLive do
-  use CtrackWeb, :live_view
+  use CtrackWeb, :auth_view
 
   alias Ctrack.Accounts
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <div class="mx-auto hy-auto max-w-sm">
       <.header class="text-center">
         No confirmation instructions received?
         <:subtitle>We'll send a new confirmation link to your inbox</:subtitle>
@@ -21,8 +21,8 @@ defmodule CtrackWeb.UserConfirmationInstructionsLive do
       </.simple_form>
 
       <p class="text-center mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
+        <.link href={~p"/auth/users/register"}>Register</.link>
+        | <.link href={~p"/auth/users/log_in"}>Log in</.link>
       </p>
     </div>
     """
@@ -36,7 +36,7 @@ defmodule CtrackWeb.UserConfirmationInstructionsLive do
     if user = Accounts.get_user_by_email(email) do
       Accounts.deliver_user_confirmation_instructions(
         user,
-        &url(~p"/users/confirm/#{&1}")
+        &url(~p"/auth/users/confirm/#{&1}")
       )
     end
 

@@ -12,7 +12,24 @@ config :ctrack,
   generators: [timestamp_type: :utc_datetime, binary_id: true],
   version: "1.0.0",
   name: "Ctrack",
-  tbank_token: System.get_env("TToken")
+  tbank_token: System.get_env("TToken"),
+  instruments: [
+    %{
+      figi: "BBG004730RP0",
+      instrumentId: "c7c26356-7352-4c37-8316-b1d93b18e16e",
+      name: "Газпром"
+    },
+    %{
+      figi: "TCS80A107UL4",
+      instrumentId: "87db07bc-0e02-4e29-90bb-05e8ef791d7b",
+      name: "Т-Технологии"
+    },
+    %{
+      figi: "TCS00A107T19",
+      instrumentId: "7de75794-a27f-4d81-a39b-492345813822",
+      name: "Яндекс"
+    }
+  ]
 
 # Configures the endpoint
 config :ctrack, CtrackWeb.Endpoint,

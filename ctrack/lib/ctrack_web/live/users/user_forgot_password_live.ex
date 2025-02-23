@@ -1,5 +1,5 @@
 defmodule CtrackWeb.UserForgotPasswordLive do
-  use CtrackWeb, :live_view
+  use CtrackWeb, :auth_view
 
   alias Ctrack.Accounts
 
@@ -20,8 +20,8 @@ defmodule CtrackWeb.UserForgotPasswordLive do
         </:actions>
       </.simple_form>
       <p class="text-center text-sm mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
+        <.link href={~p"/auth/users/register"}>Register</.link>
+        | <.link href={~p"/auth/users/log_in"}>Log in</.link>
       </p>
     </div>
     """
@@ -35,7 +35,7 @@ defmodule CtrackWeb.UserForgotPasswordLive do
     if user = Accounts.get_user_by_email(email) do
       Accounts.deliver_user_reset_password_instructions(
         user,
-        &url(~p"/users/reset_password/#{&1}")
+        &url(~p"/auth/users/reset_password/#{&1}")
       )
     end
 
