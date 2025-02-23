@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" class="[scrollbar-gutter:stable]">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title default="Ctrack" suffix=" · Phoenix Framework">
+      {assigns[:page_title]}
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+  </head>
+  <body class="bg-white">
+    <ul class="relative py-2 z-10 shadow-md flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-between">
+      <div class="flex items-center gap-4">
+        <a class="font-bold" href="/">
+        {Application.get_env(:ctrack, :name)}
+        </a>
+      </div>
+      <div class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-between">
+        <%= if @current_user do %>
+          <li class="text-[0.8125rem] leading-6 text-zinc-900">
+            {@current_user.email}
+          </li>
+          <li>
+            <.link
+              href={~p"/users/settings"}
+              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+            >
+              Настройки
+            </.link>
+          </li>
+          <li>
+            <.link
+              href={~p"/users/log_out"}
+              method="delete"
+              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+            >
+              Выйти
+            </.link>
+          </li>
+        <% else %>
+          <li>
+            <.link
+              href={~p"/users/log_in"}
+              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+            >
+            Войти
+            </.link>
+          </li>
+        <% end %>
+      </div>
+    </ul>
+    {@inner_content}
+  </body>
+</html>
